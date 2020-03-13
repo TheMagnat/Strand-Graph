@@ -1,0 +1,18 @@
+Gérer un réseau de transports en commun, par exemple le métro de Londres, via un graphe (Mco et Brin).
+Résoudre dans ce cas le problème du plus court chemin, algorithme de Dijkstra.
+
+Matrice compacte
+Brin
+
+
+Structure à brins
+Un brin est l extrémité d une arête, avec le signe moins au départ et le signe plus à l arrivée. L arête 5 qui va du sommet 3 au sommet 7 est donc composée de deux brins, le -5 lié au sommet 3 et le +5 lié au sommet 7.
+Il faut, pour concentrer davantage les données, mettre en place une structure avec trois vecteurs :
+
+
+par sommet, le numéro d un des brins qui le joignent, ou 0 s il n y en a pas.
+par brin, le numéro du sommet associé,
+par brin, le numéro du "prochain brin" en tournant autour du sommet associé.
+
+
+Fabriquez cette structure, les fonctions pour transformer le graphe ci-dessus selon cette présentation, puis les fonctions usuelles de parcours de graphe.
