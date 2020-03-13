@@ -41,4 +41,10 @@ void addWord(SearchingTree* treeToFill, char* word);
 
 void printTree(SearchingTree* toPrint);
 
+int findWord(SearchingTree* tree, char* wordToFind);
+
+void autoCompleteWord(SearchingTree* tree, char* wordToComplete);
+
+void recursivePrintWord(SearchingTree* tree, char buffer[1024], int buffSize);
+
 #endif

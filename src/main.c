@@ -7,6 +7,9 @@
 
 int main(int argc, char const *argv[]){
 	
+	char buffer[1024];
+	int tempo;
+	
 	Graph myGraph;
 
 	SearchingTree myTree;
@@ -31,15 +34,40 @@ int main(int argc, char const *argv[]){
 
 
 
-	// fillGraph(&myGraph, GRAPH_FILE);
+	fillGraph(&myGraph, &myTree, GRAPH_FILE);
 
-	// printf("PRINT GRAPH : \n\n");
-	// printGraph(&myGraph);
+	printf("PRINT GRAPH : \n\n");
+	//printGraph(&myGraph);
 
-	// freeGraph(&myGraph);
+	freeGraph(&myGraph);
 
-	//printf("Map size: %d\n", hashmap_length(AllStations));
+	// printf("Map size: %d\n", hashmap_length(AllStations));
 
+	printf("PRINT TREE : \n\n");
+
+	//printTree(&myTree);
+
+	while(1){
+		
+		printf("Please enter a subway station name :\n");
+
+		scanf("%1024s", buffer);
+		fpurge(stdin);
+
+		printf("\n");
+
+		tempo = findWord(&myTree, buffer);
+
+		if(tempo){
+			printf("%s selected !\n", buffer);
+		}
+		else{
+			printf("%s is not valid.\n", buffer);
+		}
+		
+	}
+
+	//autoCompleteWord(&myTree, "Black");
 
 	return 0;
 }

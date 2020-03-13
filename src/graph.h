@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "searchingTree.h"
+
 
 //This constant contain the max size of a char buffer
 #define MAXCHAR 1024
@@ -67,7 +69,7 @@ struct Graph{
 typedef struct Graph Graph;
 
 
-void fillGraph(Graph* toFill, char* filename);
+void fillGraph(Graph* toFill, SearchingTree* wordTree, char* filename);
 
 void printGraph(Graph* graph);
 

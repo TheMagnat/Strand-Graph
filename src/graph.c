@@ -80,7 +80,7 @@ void addSubway(char* str, Graph* toFill){
 }
 
 
-void fillGraph(Graph* toFill, char* filename){
+void fillGraph(Graph* toFill, SearchingTree* wordTree, char* filename){
 
 	int nbVertice, nbEdge, nbSubway, tempo, count;
 
@@ -119,14 +119,17 @@ void fillGraph(Graph* toFill, char* filename){
 		toFill->vertices[tempo].label = malloc((strlen(str)+1) * sizeof(char));
 		strcpy(toFill->vertices[tempo].label, str);
 
+		addWord(wordTree, str);
+
 		//hashmap_put(AllStations, str, 0);
 
 	}
-	for(count = 0; count < nbVertice; ++count){
+	///DEBUG
+	// for(count = 0; count < nbVertice; ++count){
 
-		printf("%d = %s\n", count, toFill->vertices[count].label);
+	// 	printf("%d = %s\n", count, toFill->vertices[count].label);
 
-	}
+	// }
 
 	for(count = 0; count < nbSubway; ++count){
 
