@@ -119,6 +119,8 @@ void fillGraph(Graph* toFill, char* filename){
 		toFill->vertices[tempo].label = malloc((strlen(str)+1) * sizeof(char));
 		strcpy(toFill->vertices[tempo].label, str);
 
+		//hashmap_put(AllStations, str, 0);
+
 	}
 	for(count = 0; count < nbVertice; ++count){
 

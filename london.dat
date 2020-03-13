@@ -1,4 +1,4 @@
-16 15 1
+50 50 2
 0 Brixton
 1 Stockwell
 2 Vauxhall
@@ -15,4 +15,39 @@
 13 TottenHam_Hale
 14 Blackhorse_Road
 15 Walthamstow_Central
+16 Hammersmith
+17 Goldhawk_Road
+18 Shepherd's_Bush_Market
+19 Wood_Lane
+20 Latimer_Road
+21 Ladbroke_Grove
+22 Westbourne_Park
+23 Royal_Oak
+24 Paddington
+25 Edgware_Road
+26 Baker_Street
+27 Great_Portland_Street
+28 Euston_Square
+29 King's_Cross_St._Pancras
+30 Farringdon
+31 Barbican
+32 Moorgate
+33 Liverpool_Street
+34 Aldgate
+35 Tower_Hill
+36 Monument
+37 Cannon_Street
+38 Mansion_House
+39 Blackfriars
+40 Temple
+41 Embankment
+42 Westminster
+43 St._James's_Park
+44 Sloane_Square
+45 South_Kensington
+46 Gloucester_Road
+47 High_Street_Kensington
+48 Notting_Hill_Gate
+49 Bayswater
 16 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 Victoria
+36 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 4 44 45 46 47 48 49 24 Circle

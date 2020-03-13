@@ -1,6 +1,11 @@
 
+#ifndef GRAPH_H
+#define GRAPH_H
+
+
 #include <stdlib.h>
 #include <stdio.h>
+
 
 //This constant contain the max size of a char buffer
 #define MAXCHAR 1024
@@ -69,3 +74,5 @@ void printGraph(Graph* graph);
 void printLinearGraph(Graph* graph);
 
 void freeGraph(Graph* toFree);
+
+#endif
