@@ -71,7 +71,7 @@ void reserveCharIndexTo(SearchingTree* treeToFill, int toWhere){
 
 }
 
-void addWord(SearchingTree* treeToFill, char* word){
+void addWord(SearchingTree* treeToFill, char* word, unsigned int value){
 
 	size_t stringSize, i;
 	int nodeIndex;
@@ -147,6 +147,7 @@ void addWord(SearchingTree* treeToFill, char* word){
 	}
 
 	currentNode->end = 1;
+	currentNode->value = value;
 
 }
 
@@ -204,7 +205,7 @@ int findWord(SearchingTree* tree, char* wordToFind, int showAutoComplete){
 
 		//If the current node don't have any tree attached to it, create one
 		if(currentNode->nextTree == NULL){
-			return 0;
+			return -1;
 		}
 
 		tree = currentNode->nextTree;
@@ -214,12 +215,12 @@ int findWord(SearchingTree* tree, char* wordToFind, int showAutoComplete){
 
 		//If tempoChar exced the reserbed size, the node does not exist
 		if((int)tempoChar >= tree->charToIndexReserved){
-			return 0;
+			return -1;
 		}
 
 		//Node do not exist
 		if(tree->charToIndex[(int)tempoChar] == -1){
-			return 0;
+			return -1;
 		}
 		//Node exist
 		else{
@@ -236,11 +237,11 @@ int findWord(SearchingTree* tree, char* wordToFind, int showAutoComplete){
 		if(showAutoComplete){
 			recursivePrintWord(currentNode->nextTree, buffer, i);
 		}
-		return 0;
+		return -1;
 	}
 
 
-	return 1;
+	return (int)currentNode->value;
 
 }
 

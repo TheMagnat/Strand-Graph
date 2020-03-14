@@ -56,10 +56,10 @@ int main(int argc, char const *argv[]){
 
 		printf("\n");
 
-		tempo = findWord(&myTree, buffer);
+		tempo = findWord(&myTree, buffer, 1);
 
-		if(tempo){
-			printf("%s selected !\n", buffer);
+		if(tempo != -1){
+			printf("%s selected, index %d\n", buffer, tempo);
 		}
 		else{
 			printf("%s is not valid.\n", buffer);

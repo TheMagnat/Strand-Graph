@@ -15,16 +15,22 @@
 
 
 
-/*
-	A Strand contain the number of the vertice it's on,
-	and the number of the next strand of this vertice.
+/**
+ * A Strand contain the number of the vertice it's on,
+ * and the index of the next strand of this vertice.
+ * To access to it's even strand index,
+ * you have to take a brand index and add type (1 or -1).
+ * lineId correspond to the subway line it's on.
 */
 struct Strand{ //Brin
 	int vertice;
 	int nextStrand;
-
+	
 	//If it's neg or pos
 	int type;
+
+	unsigned int lineId;
+
 };
 typedef struct Strand Strand;
 
@@ -64,6 +70,11 @@ struct Graph{
 
 	Strand* strands;
 	unsigned int nbStrand;
+
+
+	char** idToLinesName;
+	unsigned int nbLine;
+
 
 };
 typedef struct Graph Graph;

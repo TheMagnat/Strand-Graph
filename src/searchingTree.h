@@ -14,9 +14,11 @@ typedef struct SearchingTree SearchingTree;
  * if this character is an end of word
  * and a pointer that is is not NULL,
  * contain the next part of the tree.
- * 
+ * It can also store a value.
 */
 struct TreeNode {
+
+	unsigned int value;
 
 	char c;
 	int end;
@@ -65,8 +67,9 @@ void reserveCharIndexTo(SearchingTree* treeToFill, int toWhere);
  * 
  * @param treeToFill The tree that we want to fill with the word.
  * @param word The word we want to add to the tree.
+ * @param value The value to store at the word end node.
 */
-void addWord(SearchingTree* treeToFill, char* word);
+void addWord(SearchingTree* treeToFill, char* word, unsigned int value);
 
 /**
  * For debug purpose.
@@ -81,7 +84,7 @@ void printTree(SearchingTree* toPrint);
  * 
  * @param showAutoComplete If not set to 0, also show the auto complete possible of the given word.
  * 
- * @return 1 if the word is present, 0 otherwise.
+ * @return value of the end node of the word if it's present, -1 otherwise.
 */
 int findWord(SearchingTree* tree, char* wordToFind, int showAutoComplete);
 
