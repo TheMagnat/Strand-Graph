@@ -5,7 +5,7 @@
 #include <string.h>
 
 
-
+//the size with which the arrays will be initialized the first time
 #define INIT_SIZE 10
 
 
@@ -177,7 +177,7 @@ void printTree(SearchingTree* toPrint){
 
 }
 
-int findWord(SearchingTree* tree, char* wordToFind){
+int findWord(SearchingTree* tree, char* wordToFind, int showAutoComplete){
 
 	size_t stringSize, i;
 	int nodeIndex;
@@ -233,7 +233,9 @@ int findWord(SearchingTree* tree, char* wordToFind){
 	}
 
 	if(!currentNode->end){
-		recursivePrintWord(currentNode->nextTree, buffer, i);
+		if(showAutoComplete){
+			recursivePrintWord(currentNode->nextTree, buffer, i);
+		}
 		return 0;
 	}
 
