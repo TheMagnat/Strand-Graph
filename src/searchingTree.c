@@ -38,9 +38,28 @@ void initNode(TreeNode* toFill){
 
 }
 
+void recursiveDelete(SearchingTree* toDelete){
+	
+	int i;
+	for(i = 0; i < toDelete->nextNodesSize; ++i){
+
+		if(toDelete->nextNodes[i]->nextTree){
+			recursiveDelete(toDelete->nextNodes[i]->nextTree);
+		}
+
+		free(toDelete->nextNodes[i]);
+
+	}
+
+	free(toDelete->charToIndex);
+	free(toDelete->nextNodes);
+	free(toDelete);
+
+}
+
 void deleteTree(SearchingTree* toDelete){
 
-	//delete stuff
+	recursiveDelete(toDelete);
 
 }
 

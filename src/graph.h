@@ -98,6 +98,9 @@ void freeGraph(Graph* toFree);
 */
 BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end);
 
+/**
+ * To print a pretty brand path.
+*/
 void humanPrintBrandPath(Graph* graph, BrandPath* path);
 
 #endif

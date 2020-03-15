@@ -405,7 +405,15 @@ void freeGraph(Graph* toFree){
 	}
 
 	free(toFree->vertices);
+
 	free(toFree->strands);
+
+	for(count = 0; count < toFree->nbLine; ++count){
+		free(toFree->idToLinesName[count]);
+	}
+
+	free(toFree->idToLinesName);
+
 }
 
 
