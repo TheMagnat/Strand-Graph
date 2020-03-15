@@ -31,7 +31,7 @@ typedef struct BrandPath BrandPath;
  * lineId correspond to the subway line it's on.
 */
 struct Strand{ //Brin
-	int vertice;
+	unsigned int vertice;
 	int nextStrand;
 	
 	//If it's neg or pos

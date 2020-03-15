@@ -14,7 +14,7 @@ void humanPrintBrandPath(Graph* graph, BrandPath* path){
 	
 	unsigned int i;
 
-	int lineId;
+	unsigned int lineId;
 
 	lineId = graph->strands[path->brandsIndex[0]].lineId;
 
@@ -41,13 +41,14 @@ void humanPrintBrandPath(Graph* graph, BrandPath* path){
 BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 
 	Vertice* actualNode;
-	Strand *actualStrand, *pairStrand;
+	Strand* actualStrand;
 
 	BrandPath* pathToReturn;
 
-	int i;
-	int tempoNodeIndex, tempoValue;
-	int actualStrandIndex, oldWinnerStrandIndex, actualLineId;
+	unsigned int actualLineId, i;
+	int pairStrandIndex;
+	int tempoValue;
+	int actualStrandIndex, oldWinnerStrandIndex;
 
 	int actualCost, newCost;
 
@@ -77,7 +78,7 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 	pathToReturn = NULL;
 
 	actualCost = 0;
-	actualLineId = -1;
+	actualLineId = graph->nbLine; //So it's never true the first time
 
 	/*
 		Note : the index of the first strand is initialized
@@ -113,11 +114,10 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 			actualStrand = &graph->strands[actualStrandIndex];
 			
 			//It's pair strand.
-			pairStrand = &graph->strands[actualStrandIndex + actualStrand->type];
+			pairStrandIndex = actualStrandIndex + actualStrand->type;
 			
-			//tempoNodeIndex = pairStrand->vertice;
 			
-			tempoValue = visitedStrand[actualStrandIndex + actualStrand->type];
+			tempoValue = visitedStrand[pairStrandIndex];
 
 			//The strand is not done
 			if(tempoValue >= 0){
@@ -128,12 +128,12 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 				//If the checked strand got a higher value or if it's not checked (0).
 				if(tempoValue == 0){
 
-					pushSortedList(&costAndStrand, newCost, actualStrandIndex + actualStrand->type, oldWinnerStrandIndex);
+					pushSortedList(&costAndStrand, newCost, pairStrandIndex, oldWinnerStrandIndex);
 
 				}
 				else if(tempoValue > newCost){
 					
-					pushSortedList(&costAndStrand, newCost, actualStrandIndex + actualStrand->type, oldWinnerStrandIndex);
+					pushSortedList(&costAndStrand, newCost, pairStrandIndex, oldWinnerStrandIndex);
 
 					//Erase the older version in the list ?
 					//Not sure if it's usefull.
@@ -145,7 +145,7 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 					in a sorted list, smallest first.
 				*/
 				}
-				//We could add a tempoValue == newCost and only keep the lowest line change version
+				//We could add a tempoValue == newCost and only keep the lowest 'line change'
 			 	else{
 					//Here the new cost is higher or equal to the old, so it's useless.
 				}
@@ -398,7 +398,7 @@ void fillGraph(Graph* toFill, SearchingTree* wordTree, char* filename){
 
 void freeGraph(Graph* toFree){
 
-	int count;
+	unsigned int count;
 
 	for(count = 0; count < toFree->nbVertice; ++count){
 		free(toFree->vertices[count].label);
@@ -419,7 +419,8 @@ void freeGraph(Graph* toFree){
 
 void printGraph(Graph* graph){
 
-	int i, j, index;
+	unsigned int i;
+	int index;
 
 	for(i = 0; i < graph->nbVertice; ++i){
 
@@ -436,7 +437,7 @@ void printGraph(Graph* graph){
 
 void printLinearGraph(Graph* graph){
 
-	int i;
+	unsigned int i;
 
 	for(i = 0; i < graph->nbVertice; ++i){
 

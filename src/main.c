@@ -5,7 +5,10 @@
 #define GRAPH_FILE "london.dat"
 
 
-int main(int argc, char const *argv[]){
+//int main(int argc, char const *argv[]){
+
+//Empty for no warning
+int main(){
 	
 	char buffer[1024];
 	int start, end;
