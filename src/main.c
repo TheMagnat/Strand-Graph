@@ -74,7 +74,7 @@ int main(){
 
 		humanPrintBrandPath(&myGraph, path);
 
-		//Crash ici si 'Klenton' vers 'Latimer_Road' choisi.
+		//Crash ici si 'Kenton' vers 'Latimer_Road' choisi.
 		printf("Free brandsIndex of path\n");
 		free(path->brandsIndex);
 		printf("Free path\n");
@@ -87,6 +87,8 @@ int main(){
 	}
 
 	freeGraph(&myGraph);
+	deleteTree(&myTree); //Crash ici aussi si on ne fait pas un test bizare cf la fonction deleteTree
+	//Ces deux crash semble similaire
 
 	return 0;
 }

@@ -243,9 +243,9 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 	}
 
 	///Debug
-	for(i = 0; i < pathToReturn->size; ++i){
-		printf("Path : %d\n", graph->strands[pathToReturn->brandsIndex[i]].vertice);
-	}
+	// for(i = 0; i < pathToReturn->size; ++i){
+	// 	printf("Path : %d\n", graph->strands[pathToReturn->brandsIndex[i]].vertice);
+	// }
 
 	return pathToReturn;
 

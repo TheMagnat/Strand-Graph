@@ -52,6 +52,8 @@ void initTree(SearchingTree* treeToFill);
 */
 void initNode(TreeNode* toFill);
 
+void deleteTree(SearchingTree* toDelete);
+
 /**
  * Reserve more nodes if the allocated memory of nextNodes if full
 */

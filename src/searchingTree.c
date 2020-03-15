@@ -39,13 +39,13 @@ void initNode(TreeNode* toFill){
 
 }
 
-void recursiveDelete(SearchingTree* toDelete){
+void recursiveDelete(SearchingTree* toDelete, int depth){
 	
 	int i;
 	for(i = 0; i < toDelete->nextNodesSize; ++i){
 
 		if(toDelete->nextNodes[i]->nextTree){
-			recursiveDelete(toDelete->nextNodes[i]->nextTree);
+			recursiveDelete(toDelete->nextNodes[i]->nextTree, depth+1);
 		}
 
 		free(toDelete->nextNodes[i]);
@@ -54,13 +54,19 @@ void recursiveDelete(SearchingTree* toDelete){
 
 	free(toDelete->charToIndex);
 	free(toDelete->nextNodes);
-	free(toDelete);
+
+	/*
+		Si on ne fais pas ce test, le programme crash.
+		Pourquoi ? j'ai une théorie mais je ne suis vraiment pas sur.
+	*/
+	if(depth != 0)
+		free(toDelete);
 
 }
 
 void deleteTree(SearchingTree* toDelete){
 
-	recursiveDelete(toDelete);
+	recursiveDelete(toDelete, 0);
 
 }
 
