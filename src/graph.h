@@ -13,6 +13,14 @@
 #define MAXCHAR 1024
 
 
+struct BrandPath{
+
+	int* brandsIndex;
+	unsigned int size;
+
+};
+typedef struct BrandPath BrandPath;
+
 
 
 /**
@@ -45,17 +53,6 @@ struct Vertice{ // Sommet
 };
 typedef struct Vertice Vertice;
 
-/*
-	An edge contain 2 Strand,
-	One for the start of the edge and one for the end of the edge.
-*/
-struct Edge{ // Arête
-
-	Strand from;
-	Strand to;
-
-};
-typedef struct Edge Edge;
 
 /*
 	A Graph contain 2 vector, one of vertices and one of edges.
@@ -64,9 +61,6 @@ struct Graph{
 
 	Vertice* vertices;
 	unsigned int nbVertice;
-
-	Edge* edges;
-	unsigned int nbEdge;
 
 	Strand* strands;
 	unsigned int nbStrand;
@@ -80,12 +74,30 @@ struct Graph{
 typedef struct Graph Graph;
 
 
+/**
+ * To fill a graph using a file.
+ * It also require a SearchingTree to fill all the station name.
+*/
 void fillGraph(Graph* toFill, SearchingTree* wordTree, char* filename);
 
+///Debug function to print a graph
 void printGraph(Graph* graph);
 
+///Debug function to print a graph
 void printLinearGraph(Graph* graph);
 
+/**
+ * To free a Graph
+*/
 void freeGraph(Graph* toFree);
+
+
+///
+/**
+ * Implementation of the dijkastra function.
+*/
+BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end);
+
+void humanPrintBrandPath(Graph* graph, BrandPath* path);
 
 #endif

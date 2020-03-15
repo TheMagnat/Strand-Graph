@@ -1,31 +1,72 @@
 
 #include "graph.h"
 
+#include "sortedTupleList.h"
+
 #include <string.h>
 
-//Cost of movement
+//Cost of movement, in seconds * 10
 #define CHANGE_LINE 9
 #define TWO_STATION 9
 
 
-void dijkstra(Graph* graph, unsigned int start, unsigned int end){
+void humanPrintBrandPath(Graph* graph, BrandPath* path){
+	
+	unsigned int i;
+
+	int lineId;
+
+	lineId = graph->strands[path->brandsIndex[0]].lineId;
+
+	printf("Empruntez la ligne %s jusqu'à ", graph->idToLinesName[lineId]);
+	
+	for(i = 0; i < path->size; ++i){
+
+		if(lineId != graph->strands[path->brandsIndex[i]].lineId){
+			lineId = graph->strands[path->brandsIndex[i]].lineId;
+			
+			printf("%s\n", graph->vertices[graph->strands[path->brandsIndex[i-1]].vertice].label);
+
+			printf("Puis, empruntez la ligne %s jusqu'à ", graph->idToLinesName[lineId]);
+
+		}
+
+	}
+
+	printf("%s\nDestination.\nVeuillez noter no services avec une note entre 18 et 20 sur 20\n", graph->vertices[graph->strands[path->brandsIndex[i-1]].vertice].label);
+
+}
+
+
+BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 
 	Vertice* actualNode;
 	Strand *actualStrand, *pairStrand;
 
+	BrandPath* pathToReturn;
+
 	int i;
 	int tempoNodeIndex, tempoValue;
-	int actualStrandIndex, actualLineId;
+	int actualStrandIndex, oldWinnerStrandIndex, actualLineId;
 
 	int actualCost, newCost;
 
 	actualNode = &graph->vertices[start];
 
+	
+	SortedTupleList costAndStrand;
+	TupleNode* tempoTuple;
 
-	//TO DO
-	//Find a way to save the best path to a brand. (instead of -1 store brand -1 * (index + 1) ? )
+	createList(&costAndStrand);
 
-	//0 if not checked, a value > 0 if checked a dist is evaluated, -1 if done.
+
+	/*
+		This array represent each strand as it's index.
+		if the value it store :
+		= 0, the strand is not checked.
+		> 0, the strand is checked and the value equal the score.
+		< 0, the strand is done and it store the index ( -1 * (index + 1) ) of the strand that led to the strand represented by the index of the array.
+	*/
 	int* visitedStrand;
 
 	visitedStrand = malloc(graph->nbStrand * sizeof(int));
@@ -33,12 +74,40 @@ void dijkstra(Graph* graph, unsigned int start, unsigned int end){
 		visitedStrand[i] = 0;
 	}
 
+	pathToReturn = NULL;
+
 	actualCost = 0;
 	actualLineId = -1;
+
+	/*
+		Note : the index of the first strand is initialized
+		to any strand that is connected to the first node.
+		This is only usefull to save the path easily saving the old
+		strand each time (the first node is the only node that don't have any
+		old strand since he is the first).
+	*/
+	actualStrandIndex = actualNode->firstStrand;
+
+	//Note : the break is at the end, we could also put the test here but we skip some assignation
 	while(1){
 		
+		/*
+			Note : this variable is used 2 time differently,
+			here to save the strand which led to this node.
+			Below it's used to store the old strand which led to the current winner.
+		*/
+		oldWinnerStrandIndex = actualStrandIndex;
+
 		actualStrandIndex = actualNode->firstStrand;
 
+		///This test is for debugging, it should never hapen if the graph is connected and got more than 1 node
+		if(actualStrandIndex == -1){
+			printf("Node got no first strand.\n");
+			return NULL;
+		}
+
+
+		//We check all the next possible brand
 		do{
 			
 			actualStrand = &graph->strands[actualStrandIndex];
@@ -51,13 +120,24 @@ void dijkstra(Graph* graph, unsigned int start, unsigned int end){
 			tempoValue = visitedStrand[actualStrandIndex + actualStrand->type];
 
 			//The strand is not done
-			if(tempoValue != -1){
+			if(tempoValue >= 0){
 				
 				newCost = actualCost + TWO_STATION;
 				if(actualStrand->lineId != actualLineId) newCost += CHANGE_LINE;
 
 				//If the checked strand got a higher value or if it's not checked (0).
-				if(tempoValue > newCost){
+				if(tempoValue == 0){
+
+					pushSortedList(&costAndStrand, newCost, actualStrandIndex + actualStrand->type, oldWinnerStrandIndex);
+
+				}
+				else if(tempoValue > newCost){
+					
+					pushSortedList(&costAndStrand, newCost, actualStrandIndex + actualStrand->type, oldWinnerStrandIndex);
+
+					//Erase the older version in the list ?
+					//Not sure if it's usefull.
+
 				/*
 					Store this possibility as a pair of :
 						int (the cost to here) and int (index of the strand of arrival = (actualStrandIndex + actualStrand->type))
@@ -65,15 +145,9 @@ void dijkstra(Graph* graph, unsigned int start, unsigned int end){
 					in a sorted list, smallest first.
 				*/
 				}
+				//We could add a tempoValue == newCost and only keep the lowest line change version
 			 	else{
-
-				/*
-					Store this possibility as a pair of :
-						int (the cost to here) and int (index of the strand of arrival = (actualStrandIndex + actualStrand->type))
-				
-					in a sorted list, smallest first.
-				*/
-
+					//Here the new cost is higher or equal to the old, so it's useless.
 				}
 
 
@@ -87,32 +161,93 @@ void dijkstra(Graph* graph, unsigned int start, unsigned int end){
 		}
 		while(actualStrandIndex != -1);
 
-		//Mark the actual node index to finished.
 
 
-
-		/*
-			Now select the first possibility in the sorted list (smallest first)
-
-			actualStrandIndex = winnerStrand
-
-		*/
-
-		actualStrand = &graph->strands[actualStrandIndex];
-
-		if(actualStrand->vertice == end){
-			printf("END\n");
-			break;
+		///This test is for debugging, it should never hapen if the graph is connected
+		if(costAndStrand.size == 0){
+			printf("List size = 0.\n");
+			return NULL;
 		}
 
-		actualNode = &graph->vertices[actualStrand->vertice];
+		//Now select the first possibility in the sorted list
+		/*
+			It's possible a brand that wasn't visited when added to the list
+			has become visited (finding another faster path that lead to a node attached to the strand)
+			So to be sure it do not happen,
+			we loop on the choice of the next strand and ignore every strand that are marked as checked. (< 0)
+		*/
+		do{
 
-		//Mark the selected strand and it's par as done.
-		visitedStrand[actualStrandIndex] = -1;
-		visitedStrand[actualStrandIndex + actualStrand->type] = -1;
+			tempoTuple = getFirstList(&costAndStrand);
+
+			actualStrandIndex 		= tempoTuple->second;
+			actualCost 				= tempoTuple->first;
+			oldWinnerStrandIndex 	= tempoTuple->third;
+
+			deleteFirstList(&costAndStrand);
+
+		}
+		while(visitedStrand[actualStrandIndex] < 0);
+
+		
+		actualStrand = &graph->strands[actualStrandIndex];
+		
+
+		/*
+			Mark the selected strand and it's pair as done by setting it to a value < 0.
+			We store the strand which led to this brand as a negative value of it's index
+			(+1 for not setting 0 if it was the first brand of the array)
+		*/
+		visitedStrand[actualStrandIndex] = -1*(oldWinnerStrandIndex+1);
+		visitedStrand[actualStrandIndex + actualStrand->type] = -1*(oldWinnerStrandIndex+1);
+		
+		if(actualStrand->vertice == end){
+			break;
+		}
+		
+		actualLineId = actualStrand->lineId;
+		actualNode = &graph->vertices[actualStrand->vertice];
 
 	}
 
+	deleteList(&costAndStrand);
+
+	oldWinnerStrandIndex = actualStrandIndex;
+
+	i = 0;
+	while(graph->strands[actualStrandIndex].vertice != start){
+
+		actualStrandIndex = (-1 * visitedStrand[actualStrandIndex]) - 1;
+
+		++i;
+
+	}
+
+	pathToReturn = malloc(sizeof(BrandPath));
+
+	pathToReturn->size = i+1;
+	pathToReturn->brandsIndex = malloc(i * sizeof(int));
+
+	//Store the last one here
+	actualStrandIndex = oldWinnerStrandIndex;
+	pathToReturn->brandsIndex[i] = actualStrandIndex;
+	--i;
+	while(graph->strands[actualStrandIndex].vertice != start){
+
+		actualStrandIndex = (-1 * visitedStrand[actualStrandIndex]) - 1;
+
+		pathToReturn->brandsIndex[i] = actualStrandIndex;
+		
+		--i;
+
+	}
+
+	///Debug
+	for(i = 0; i < pathToReturn->size; ++i){
+		printf("Path : %d\n", graph->strands[pathToReturn->brandsIndex[i]].vertice);
+	}
+
+	return pathToReturn;
 
 }
 
@@ -216,9 +351,6 @@ void fillGraph(Graph* toFill, SearchingTree* wordTree, char* filename){
 	toFill->nbVertice = nbVertice;
 	toFill->vertices = malloc(nbVertice * sizeof(Vertice));
 
-	// toFill->nbEdge = 0;
-	// toFill->edges = malloc(nbEdge * sizeof(Edge));
-
 	toFill->nbStrand = 0;
 	toFill->strands = malloc((2 * nbEdge) * sizeof(Strand));
 
@@ -244,15 +376,9 @@ void fillGraph(Graph* toFill, SearchingTree* wordTree, char* filename){
 
 		addWord(wordTree, str, tempo);
 
-		//hashmap_put(AllStations, str, 0);
 
 	}
-	///DEBUG
-	// for(count = 0; count < nbVertice; ++count){
 
-	// 	printf("%d = %s\n", count, toFill->vertices[count].label);
-
-	// }
 
 	for(count = 0; count < nbSubway; ++count){
 
@@ -279,7 +405,6 @@ void freeGraph(Graph* toFree){
 	}
 
 	free(toFree->vertices);
-	free(toFree->edges);
 	free(toFree->strands);
 }
 
@@ -290,7 +415,7 @@ void printGraph(Graph* graph){
 
 	for(i = 0; i < graph->nbVertice; ++i){
 
-		printf("Node %d, %s. Strands :\n", i, graph->vertices[i].label);
+		printf("Node %d, %s. first %d Strands :\n", i, graph->vertices[i].label, graph->vertices[i].firstStrand);
 
 		for(index = graph->vertices[i].firstStrand; index != -1; index = graph->strands[index].nextStrand){
 			printf("index : %d, Vert : %d, next : %d, type : %d\n", index, graph->strands[index].vertice, graph->strands[index].nextStrand, graph->strands[index].type);

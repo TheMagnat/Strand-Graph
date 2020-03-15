@@ -42,7 +42,6 @@ void deleteTree(SearchingTree* toDelete){
 
 	//delete stuff
 
-	hashmap_free(toDelete->charToIndex);
 }
 
 void reserveMoreNodes(SearchingTree* treeToFill){
