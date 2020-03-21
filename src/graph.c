@@ -71,7 +71,7 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 	int* visitedStrand;
 
 	visitedStrand = malloc(graph->nbStrand * sizeof(int));
-	for(i = 0; i < graph->nbVertice; ++i){
+	for(i = 0; i < graph->nbStrand; ++i){
 		visitedStrand[i] = 0;
 	}
 
