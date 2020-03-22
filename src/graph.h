@@ -78,7 +78,7 @@ typedef struct Graph Graph;
  * To fill a graph using a file.
  * It also require a SearchingTree to fill all the station name.
 */
-void fillGraph(Graph* toFill, SearchingTree* wordTree, char* filename);
+void fillGraph(Graph* toFill, char* filename, SearchingTree* wordTree, uint8_t fillWord);
 
 ///Debug function to print a graph
 void printGraph(Graph* graph);

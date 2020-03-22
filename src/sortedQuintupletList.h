@@ -2,8 +2,8 @@
 #define SORTED_QUINTUPLET_LIST_H
 
 /**
- * The node of the sorted pair list.
-*/
+ * The node of the sorted quintuplet list.
+ */
 struct QuintupletNode{
 
 	int first;
@@ -18,7 +18,7 @@ struct QuintupletNode{
 typedef struct QuintupletNode QuintupletNode;
 
 /**
- * A list that contain pair and is sorted (smallest first in first).
+ * A list that contain quintuplet and is sorted (smallest first in first).
 */
 struct SortedQuintupletList{
 

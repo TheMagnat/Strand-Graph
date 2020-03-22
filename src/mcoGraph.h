@@ -26,16 +26,18 @@ struct NodePath{
 typedef struct NodePath NodePath;
 
 
-
-struct costAndLine{
+/**
+ * This structure help us to know if a node is done on certain line,
+ * And if it's not done on that line, the old cost of the path to this node.
+*/
+struct CostAndDone{
 
 	int *donePerLine;
 
-	unsigned int line;
 	unsigned int *costPerLine;
 
 };
-typedef struct costAndLine costAndLine;
+typedef struct CostAndDone CostAndDone;
 
 
 
@@ -55,13 +57,26 @@ struct Matrix{
 typedef struct Matrix Matrix;
 
 
+/**
+ * Pretty printer for to print a NodePath.
+*/
+void humanPrintNodePath(Matrix* graph, NodePath* path);
+
+/**
+ * The dijkstra algorithm for a Matrix graph.
+ * 
+ * @param start Starting Node.
+ * @param end ending Node.
+ * 
+ * @return A NodePath structure that contain the path from start to end.
+ */
 NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end);
 
 /**
  * To fill a matrix graph using a file.
- * It also require a SearchingTree to fill all the station name.
+ * It also require a SearchingTree to fill all the station name if fillWord is not equal to 0.
 */
-void fillMatrixGraph(Matrix* toFill, SearchingTree* wordTree, char* filename);
+void fillMatrixGraph(Matrix* toFill, char* filename, SearchingTree* wordTree, uint8_t fillWord);
 
 void printMatrixGraph(Matrix* toPrint);
 

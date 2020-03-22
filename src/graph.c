@@ -69,8 +69,8 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 		< 0, the strand is done and it store the index ( -1 * (index + 1) ) of the strand that led to the strand represented by the index of the array.
 	*/
 	int* visitedStrand;
-
-	visitedStrand = malloc(graph->nbStrand * sizeof(int));
+													//int
+	visitedStrand = malloc(graph->nbStrand * sizeof(*visitedStrand));
 	for(i = 0; i < graph->nbStrand; ++i){
 		visitedStrand[i] = 0;
 	}
@@ -222,11 +222,12 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 		++i;
 
 	}
-
-	pathToReturn = malloc(sizeof(BrandPath));
+								//BrandPath
+	pathToReturn = malloc(sizeof(*pathToReturn));
 
 	pathToReturn->size = i+1;
-	pathToReturn->brandsIndex = malloc(i * sizeof(int));
+													  //int
+	pathToReturn->brandsIndex = malloc((i+1) * sizeof(*pathToReturn->brandsIndex));
 
 	//Store the last one here
 	actualStrandIndex = oldWinnerStrandIndex;
@@ -335,7 +336,7 @@ void addSubway(char* str, Graph* toFill, unsigned int lineId){
 }
 
 
-void fillGraph(Graph* toFill, SearchingTree* wordTree, char* filename){
+void fillGraph(Graph* toFill, char* filename, SearchingTree* wordTree, uint8_t fillWord){
 
 	int nbVertice, nbEdge, nbSubway, tempo, count;
 
@@ -348,11 +349,11 @@ void fillGraph(Graph* toFill, SearchingTree* wordTree, char* filename){
 	fscanf(fp, "%d %d %d\n", &nbVertice, &nbEdge, &nbSubway);
 
 
-	toFill->nbVertice = nbVertice;
-	toFill->vertices = malloc(nbVertice * sizeof(Vertice));
+	toFill->nbVertice = nbVertice;				//Vertice
+	toFill->vertices = malloc(nbVertice * sizeof(*toFill->vertices));
 
-	toFill->nbStrand = 0;
-	toFill->strands = malloc((2 * nbEdge) * sizeof(Strand));
+	toFill->nbStrand = 0;						  //Strand
+	toFill->strands = malloc((2 * nbEdge) * sizeof(*toFill->strands));
 
 	toFill->nbLine = nbSubway;
 	toFill->idToLinesName = malloc(nbSubway * sizeof(char*));
@@ -374,7 +375,8 @@ void fillGraph(Graph* toFill, SearchingTree* wordTree, char* filename){
 		toFill->vertices[tempo].label = malloc((strlen(str)+1) * sizeof(char));
 		strcpy(toFill->vertices[tempo].label, str);
 
-		addWord(wordTree, str, tempo);
+		if(fillWord)
+			addWord(wordTree, str, tempo);
 
 
 	}

@@ -4,6 +4,8 @@
 
 #include <limits.h>
 
+#include <string.h>
+
 #include "math.h"
 
 #include "sortedQuintupletList.h"
@@ -13,20 +15,24 @@
 #define TWO_STATION 9
 
 
+/**
+ * Get the first bit set to 1.
+ * 
+ * @param value The value to check
+ * @param maxBit the maximum of bit to test
+ * 
+ * @return the index of the first bit set at 1 of the value.
+*/
 unsigned int getFirstBitIndex(unsigned int value, unsigned int maxBit){
 
 	unsigned int tempo, i;
 
 	for(i = 0, tempo = value; i < maxBit; ++i, tempo >>= 1){
-
-		if(tempo & 1){
-			//printf("i : %d returned.\n", i);
+		if(tempo & 1)
 			return i;
-		}
-
 	}
-	
 
+	//Debug
 	printf("This print should never happen.\n");
 
 	return 0;
@@ -34,64 +40,47 @@ unsigned int getFirstBitIndex(unsigned int value, unsigned int maxBit){
 }
 
 
+
 void humanPrintNodePath(Matrix* graph, NodePath* path){
 
-	unsigned int i;
-
-	unsigned int lineId, oldLineId;
-
-	char *save;
+	unsigned int lineId, oldLineId, i;
 
 	lineId = path->nodes[1].line;
 
-	//printf("Empruntez la ligne %s jusqu'à \n", graph->lineName[getFirstBitIndex(lineId, graph->nbLine)]);
-	
 	printf("E");
-	for(i = 0; i < path->size; ++i){
-
-		//printf("%d %d\n", path->nodes[i].node, path->nodes[i].line);
+	//Starting at i = 2 may not work if the path is only size 1.
+	for(i = 1; i < path->size; ++i){
 
 		oldLineId = lineId;
 		lineId = lineId & path->nodes[i].line;
 
 		if(lineId == 0){
 			lineId = path->nodes[i].line;
-			
 			printf("mpruntez la ligne %s jusqu'à %s\n", graph->lineName[getFirstBitIndex(oldLineId, graph->nbLine)], graph->stationName[path->nodes[i-1].node]);
-			
 			printf("Puis, e");
-			//printf("%s\n", graph->stationName[path->nodes[i].node]);
-
-			//printf("Puis, empruntez la ligne %s jusqu'à \n", graph->lineName[getFirstBitIndex(lineId, graph->nbLine)]);
-
 		}
 
 	}
 	
 	printf("mpruntez la ligne %s jusqu'à %s\n", graph->lineName[getFirstBitIndex(oldLineId, graph->nbLine)], graph->stationName[path->nodes[i-1].node]);
 	printf("Vous voilà arrivé à destination, n'oubliez pas vos bagages, de vous proteger du coronavirus et de noter ce projet avec une note comprise dans l'intervalle d'entier ]19 - 20].\n");
-	//printf("%s\nDestination.\nVeuillez noter no services avec une note entre 18 et 20 sur 20\n", graph->stationName[path->nodes[i-1].node]);
-
-
 
 }
+
 
 NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
 
 	unsigned int actualNode, oldNode, edgeValue;
-	unsigned int tempoCost, tempoLine;
+	unsigned int tempoLine;
 	//Strand* actualStrand;
 
 	NodePath* pathToReturn;
 
 	unsigned int actualLineId, newLineId, oldLineId, i, j;
-	int pairStrandIndex;
 	unsigned int tempoValue;
-	int actualStrandIndex, oldWinnerStrandIndex;
 
-	int actualCost, newCost;
+	unsigned int actualCost, newCost, tempoCost;
 
-	//actualNode = &graph->vertices[start];
 	actualNode = start;
 	
 	//We're going to save : cost, node, line
@@ -100,135 +89,124 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
 
 	createQuintList(&costAndStrand);
 
+	/*
+		This will store the current state of each node compared to the line id.
+	*/
+	CostAndDone* saved;
+										//CostAndDone
+	saved = malloc(graph->width * sizeof(*saved));
 
 	/*
-		This array represent each strand as it's index.
-		if the value it store :
-		= 0, the strand is not checked.
-		> 0, the strand is checked and the value equal the score.
-		< 0, the strand is done and it store the index ( -1 * (index + 1) ) of the strand that led to the strand represented by the index of the array.
+		We initialize all the CostAndDone structure.
+		TempoValue is the maximum value.
 	*/
-	costAndLine* visitedStrand;
-	
-	visitedStrand = malloc(graph->width * sizeof(costAndLine));
-
 	tempoValue = pow(2, graph->nbLine);
 	for(i = 0; i < graph->width; ++i){
-		visitedStrand[i].line = 0;
+		//saved[i].line = 0;
 		
-		visitedStrand[i].donePerLine = malloc(tempoValue * sizeof(int));;
+		saved[i].donePerLine = malloc(tempoValue * sizeof(int));;
 		for(j = 0; j < tempoValue; ++j)
-			visitedStrand[i].donePerLine[j] = 0;
+			saved[i].donePerLine[j] = 0;
 		
-		visitedStrand[i].costPerLine = malloc(tempoValue * sizeof(unsigned int));
+		saved[i].costPerLine = malloc(tempoValue * sizeof(unsigned int));
 		for(j = 0; j < tempoValue; ++j)
-			visitedStrand[i].costPerLine[j] = UINT_MAX;
+			saved[i].costPerLine[j] = UINT_MAX;
+	
 	}
 
+	//Fill the starting node to set it done.
 	for(i = 0; i < tempoValue; ++i)
-		visitedStrand[start].donePerLine[i] = 1;
+		saved[start].donePerLine[i] = 1;
 
+	//Not sur if it's usefull.
 	pathToReturn = NULL;
 
+	//The cost start at 0
 	actualCost = 0;
-	actualLineId = graph->nbLine; //So it's never true the first time
+	//start the line id with an id that do not exist.
+	actualLineId = pow(2, graph->nbLine); 
 
-	/*
-		Note : the index of the first strand is initialized
-		to any strand that is connected to the first node.
-		This is only usefull to save the path easily saving the old
-		strand each time (the first node is the only node that don't have any
-		old strand since he is the first).
-	*/
-	// actualStrandIndex = actualNode->firstStrand;
+
 
 	//Note : the break is at the end, we could also put the test here but we skip some assignation
 	while(1){
-		
-		/*
-			Note : this variable is used 2 time differently,
-			here to save the strand which led to this node.
-			Below it's used to store the old strand which led to the current winner.
-		*/
-		// oldWinnerStrandIndex = actualStrandIndex;
-
-		// actualStrandIndex = actualNode->firstStrand;
-
-		///This test is for debugging, it should never hapen if the graph is connected and got more than 1 node
-		// if(actualStrandIndex == -1){
-		// 	printf("Node got no first strand.\n");
-		// 	return NULL;
-		// }
 
 
 		//We check all the next possible brand
 		for(i = 0; i < graph->width; ++i){
-			
+
 			edgeValue = graph->data[i + actualNode * graph->width];
 
+			//If the value is 0 it mean there is no edge between actualNode and i.
 			if(edgeValue == 0){
 				continue;
 			}
 
-			if(visitedStrand[i].donePerLine[newLineId] == 1){
-				//printf("%d done.\n", i);
-				continue;
-			}
-			
+			/*
+				Get the new line id
+				Not : If the actualLineId was multiple lines
+				(By being a value with multiple bit on like 3 5 6 7...)
+				this calcul will return the possible lines between the new node and the old lines we was on.
+			*/
+			newLineId = actualLineId & edgeValue;
 
+			/*
+				Actualize the new cost to the node 'i'
+				If the line changed, add even more to the cost.
+			*/
 			newCost = actualCost + TWO_STATION;
 
-			newLineId = actualLineId & edgeValue;
+			//If newLineId = 0 it mean the & operation returned 0 so there is no line in common between the old lines and the new node.
 			if(newLineId == 0){
 				newCost += CHANGE_LINE;
 				newLineId = edgeValue;
 			}
-			//printf("Doing %d for %d. Old line : %d, new Line : %d\n", i, actualNode, actualLineId, newLineId);
 			
-			tempoLine = visitedStrand[i].line;
-			tempoCost = visitedStrand[i].costPerLine[newLineId];
-
-
-			//The strand is not done
-			if((tempoLine & newLineId) != newLineId){
-
-				visitedStrand[i].line = tempoLine | newLineId;
-
+			/*
+				If the line is done, continue.
+				Note : We could us costPerValue and store in it a negative when it's done
+				but when a node is done, we use donePerLine to store the node which led to the node
+				and we use costPerLine to store the line that led to the node too.
+				So both vector are important.
+			*/
+			if(saved[i].donePerLine[newLineId] == 1){
+				continue;
 			}
-			else if(newCost >= tempoCost){
+			
+			tempoCost = saved[i].costPerLine[newLineId];
+
+			/*
+				If tempoCost is less the UINT_MAX, it mean it has already been explored,
+				and if the test it true, the last exploration had a better score so we wontinue.
+			*/
+			if(newCost >= tempoCost){
 				continue;
 			}
 
-			visitedStrand[i].costPerLine[newLineId] = newCost;
 
+			//If we arrive here, the actual path is the best to arrive to this node (with the current line).
+			saved[i].costPerLine[newLineId] = newCost;
 
+			//We need to save all these value
 			pushSortedQuintList(&costAndStrand, newCost, i, newLineId, actualNode, actualLineId);
-
 
 		}
 
 
 		///This test is for debugging, it should never hapen if the graph is connected
 		if(costAndStrand.size == 0){
-			printf("List size = 0.\n");
 			return NULL;
 		}
 
 		//Now select the first possibility in the sorted list
 		/*
-			It's possible a brand that wasn't visited when added to the list
-			has become visited (finding another faster path that lead to a node attached to the strand)
+			It's possible a node that wasn't done when added to the list
+			has become done (finding another faster path that lead to a node)
 			So to be sure it do not happen,
-			we loop on the choice of the next strand and ignore every strand that are marked as checked. (< 0)
-		*/
-
-		//printf("select\n");
-		// printf("done : %d, list :\n", actualNode);
-		// printQuintList(&costAndStrand);
-		
+			we loop on the choice of the next node and ignore every node that are done.
+		*/		
 		do{
 
-			//printf("list size : %d\n", costAndStrand.size);
 			tempoQuintuplet = getFirstQuintList(&costAndStrand);
 			
 			actualCost		= tempoQuintuplet->first;
@@ -239,54 +217,39 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
 			//Save Value to retrace the path
 			oldNode			= tempoQuintuplet->fourth;
 			oldLineId		= tempoQuintuplet->fifth;
-			//printf("selected in list : %d\n", actualNode);
 
 			deleteFirstQuintList(&costAndStrand);
 
 		}
-		while(visitedStrand[actualNode].donePerLine[actualLineId] != 0);
+		while(saved[actualNode].donePerLine[actualLineId] != 0);
 
-		// printf("selected\n");
-		
-		visitedStrand[actualNode].donePerLine[actualLineId] = 1 + oldNode;
+		//Now the node is done, give it a value that is not equal to 0 and that can help us to get to the node before it.
+		saved[actualNode].donePerLine[actualLineId] = 1 + oldNode;
 		//Now the node is done, use costPerLine to store the line id which brought here
-		visitedStrand[actualNode].costPerLine[actualLineId] = oldLineId;
-
-
-		//visitedStrand[actualNode].line = oldNode;
-
-		//actualStrand = &graph->strands[actualStrandIndex];
+		saved[actualNode].costPerLine[actualLineId] = oldLineId;
 		
-
-		/*
-			Mark the selected strand and it's pair as done by setting it to a value < 0.
-			We store the strand which led to this brand as a negative value of it's index
-			(+1 for not setting 0 if it was the first brand of the array)
-		*/
-		// visitedStrand[actualStrandIndex] = -1*(oldWinnerStrandIndex+1);
-		// visitedStrand[actualStrandIndex + actualStrand->type] = -1*(oldWinnerStrandIndex+1);
-		
+		//End if the node is equal to the end node.		
 		if(actualNode == end){
 			break;
 		}
 		
-		// actualLineId = actualStrand->lineId;
-		// actualNode = &graph->vertices[actualStrand->vertice];
-
 	}
 
+	//Free the Quint list.
 	deleteQuintList(&costAndStrand);
 
 
 	oldNode 	= actualNode;
 	oldLineId 	= actualLineId;
 
-
+	/*
+		Count the number of node in the path.
+	*/
 	i = 0;
 	while(actualNode != start){
 		
-		tempoLine 		= visitedStrand[actualNode].costPerLine[actualLineId];
-		actualNode 		= visitedStrand[actualNode].donePerLine[actualLineId]-1;
+		tempoLine 		= saved[actualNode].costPerLine[actualLineId];
+		actualNode 		= saved[actualNode].donePerLine[actualLineId]-1;
 		
 		actualLineId = tempoLine;
 
@@ -294,10 +257,14 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
 
 	}
 
-	pathToReturn = malloc(sizeof(NodePath));
+	
+								//NodePath
+	pathToReturn = malloc(sizeof(*pathToReturn));
 
 	pathToReturn->size = i+1;
-	pathToReturn->nodes = malloc(i * sizeof(NodeAndLine));
+											//NodeAndLine
+	pathToReturn->nodes = malloc((i+1) * sizeof(*pathToReturn->nodes));
+
 
 	//Store the last one here
 	actualNode = oldNode;
@@ -308,10 +275,13 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
 
 	--i;
 
+	/*
+		Then store then in the pathToReturn vector.
+	*/
 	while(actualNode != start){
 
-		tempoLine 		= visitedStrand[actualNode].costPerLine[actualLineId];
-		actualNode 		= visitedStrand[actualNode].donePerLine[actualLineId]-1;
+		tempoLine 		= saved[actualNode].costPerLine[actualLineId];
+		actualNode 		= saved[actualNode].donePerLine[actualLineId]-1;
 		
 		actualLineId = tempoLine;
 
@@ -323,12 +293,6 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
 
 	}
 
-	///Debug
-	// for(i = 0; i < pathToReturn->size; ++i){
-	// 	printf("Path : %d\n", graph->strands[pathToReturn->brandsIndex[i]].vertice);
-	// }
-
-	humanPrintNodePath(graph, pathToReturn);
 
 	return pathToReturn;
 
@@ -371,12 +335,10 @@ void addSubwayMatrix(char* str, Matrix* toFill, unsigned int lineId){
 	toFill->lineName[lineId] = malloc((strlen(token)+1) * sizeof(char));
 	strcpy(toFill->lineName[lineId], token);
 
-	// printf("Metro : %s, added.\n", token);
-
 }
 
 
-void fillMatrixGraph(Matrix* toFill, SearchingTree* wordTree, char* filename){
+void fillMatrixGraph(Matrix* toFill, char* filename, SearchingTree* wordTree, uint8_t fillWord){
 
 	int nbVertice, nbEdge, nbSubway, tempo, count;
 
@@ -391,9 +353,9 @@ void fillMatrixGraph(Matrix* toFill, SearchingTree* wordTree, char* filename){
 
 	toFill->size = nbVertice*nbVertice;
 	toFill->width = nbVertice;
-
-	toFill->data = malloc(toFill->size * sizeof(unsigned int));
-	for(count = 0; count < toFill->size; ++count){
+												//unsigned int
+	toFill->data = malloc(toFill->size * sizeof(*toFill->data));
+	for(count = 0; count < nbVertice*nbVertice; ++count){
 
 		toFill->data[count] = 0;
 
@@ -418,7 +380,8 @@ void fillMatrixGraph(Matrix* toFill, SearchingTree* wordTree, char* filename){
 		toFill->stationName[tempo] = malloc((strlen(str)+1) * sizeof(char));
 		strcpy(toFill->stationName[tempo], str);
 
-		addWord(wordTree, str, tempo);
+		if(fillWord)
+			addWord(wordTree, str, tempo);
 
 
 	}
@@ -442,7 +405,7 @@ void fillMatrixGraph(Matrix* toFill, SearchingTree* wordTree, char* filename){
 
 void printMatrixGraph(Matrix* toPrint){
 
-	int i, j;
+	unsigned int i, j;
 
 	for(i = 0; i < toPrint->width; ++i){
 		for(j = 0; j < toPrint->width; ++j){

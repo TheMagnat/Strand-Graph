@@ -56,8 +56,9 @@ void recursiveDelete(SearchingTree* toDelete, int depth){
 	free(toDelete->nextNodes);
 
 	/*
-		Si on ne fais pas ce test, le programme crash.
-		Pourquoi ? j'ai une théorie mais je ne suis vraiment pas sur.
+		We do not delete the first one because it
+		dot not belong to the SearchingTree structure
+		but to the user (in the main or somewhere else.)
 	*/
 	if(depth != 0)
 		free(toDelete);
@@ -122,7 +123,8 @@ void addWord(SearchingTree* treeToFill, char* word, unsigned int value){
 
 		//If the current node don't have any tree attached to it, create one
 		if(currentNode->nextTree == NULL){
-			currentNode->nextTree = malloc(sizeof(SearchingTree));
+												//SearchingTree
+			currentNode->nextTree = malloc(sizeof(*currentNode->nextTree));
 			initTree(currentNode->nextTree);
 		}
 
