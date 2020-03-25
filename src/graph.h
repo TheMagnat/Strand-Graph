@@ -95,8 +95,15 @@ void freeGraph(Graph* toFree);
 ///
 /**
  * Implementation of the dijkastra function.
+ * 
+ * @param start Starting Node.
+ * @param end ending Node.
+ * 
+ * @param timeOrChange This parameter allow us to select if you prefer the less time or the less line change. On 0 it mean time, on any other it mean line change.
+ *
+ * @return A BandPath structure that contain the path from start to end.
 */
-BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end);
+BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end, uint8_t timeOrChange);
 
 /**
  * To print a pretty brand path.

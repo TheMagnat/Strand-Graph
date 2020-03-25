@@ -1,10 +1,11 @@
 How to interpret the London.dat file.
 
 It contain multiple lines.
-The first line tell how many node, edge and subway there are. ("nbN nbL nbS")
+The first line tell how many node, edge, subway and line on subway there are. ("nbN nbL nbS nbLS")
+Note : nbLS is important because some subway got separated line in it so we want to add them separatly
 the next nbN lines will contain the node index and it's label.
 a node line will be :
 "node_index node_label"
 after this, the next nbS lines will contain the subway.
 a subway line will be :
-"nb_stop stop_1_index stop_2_index ... stop_nb_stop_index subway_label"
+"line_id nb_stop stop_1_index stop_2_index ... stop_nb_stop_index subway_label"

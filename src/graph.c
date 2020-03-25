@@ -38,7 +38,7 @@ void humanPrintBrandPath(Graph* graph, BrandPath* path){
 }
 
 
-BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
+BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end, uint8_t timeOrChange){
 
 	Vertice* actualNode;
 	Strand* actualStrand;
@@ -121,9 +121,19 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 
 			//The strand is not done
 			if(tempoValue >= 0){
+
+				if(timeOrChange){
+
+					if(actualStrand->lineId != actualLineId) newCost += 1;
+
+				}
+				else{
+					
+					newCost = actualCost + TWO_STATION;
+					if(actualStrand->lineId != actualLineId) newCost += CHANGE_LINE;
+
+				}
 				
-				newCost = actualCost + TWO_STATION;
-				if(actualStrand->lineId != actualLineId) newCost += CHANGE_LINE;
 
 				//If the checked strand got a higher value or if it's not checked (0).
 				if(tempoValue == 0){
@@ -243,6 +253,8 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 
 	}
 
+	free(visitedStrand);
+
 	///Debug
 	// for(i = 0; i < pathToReturn->size; ++i){
 	// 	printf("Path : %d\n", graph->strands[pathToReturn->brandsIndex[i]].vertice);
@@ -252,15 +264,18 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end){
 
 }
 
-void addSubway(char* str, Graph* toFill, unsigned int lineId){
+void addSubway(char* str, Graph* toFill){
 
-	int nbNode, from, to, i;
+	int lineId, nbNode, from, to, i;
 
 	const char s[3] = " \n";
 	char *token;
 
 
 	token = strtok(str, s);
+	lineId = atoi(token);
+
+	token = strtok(NULL, s);
 	nbNode = atoi(token);
 
 	if(nbNode < 2){
@@ -326,6 +341,13 @@ void addSubway(char* str, Graph* toFill, unsigned int lineId){
 
 	}
 
+	if(toFill->idToLinesName[lineId]){
+
+		printf("this line id is already done. %d\n", lineId);
+		return;
+
+	}
+
 	token = strtok(NULL, s);
 											//Still not sure for the +1
 	toFill->idToLinesName[lineId] = malloc((strlen(token)+1) * sizeof(char));
@@ -338,7 +360,7 @@ void addSubway(char* str, Graph* toFill, unsigned int lineId){
 
 void fillGraph(Graph* toFill, char* filename, SearchingTree* wordTree, uint8_t fillWord){
 
-	int nbVertice, nbEdge, nbSubway, tempo, count;
+	int nbVertice, nbEdge, nbSubway, nbLineOnSubway, tempo, count;
 
 	FILE *fp;
 	char str[MAXCHAR];
@@ -346,7 +368,7 @@ void fillGraph(Graph* toFill, char* filename, SearchingTree* wordTree, uint8_t f
     fp = fopen(filename, "r");
 
 
-	fscanf(fp, "%d %d %d\n", &nbVertice, &nbEdge, &nbSubway);
+	fscanf(fp, "%d %d %d %d\n", &nbVertice, &nbEdge, &nbSubway, &nbLineOnSubway);
 
 
 	toFill->nbVertice = nbVertice;				//Vertice
@@ -382,13 +404,13 @@ void fillGraph(Graph* toFill, char* filename, SearchingTree* wordTree, uint8_t f
 	}
 
 
-	for(count = 0; count < nbSubway; ++count){
+	for(count = 0; count < nbLineOnSubway; ++count){
 
 		if(!fgets(str, MAXCHAR, fp)){
 			printf("Error, can't read line %d\n", count);
 		}
 
-		addSubway(str, toFill, count);
+		addSubway(str, toFill);
 
 	}
 

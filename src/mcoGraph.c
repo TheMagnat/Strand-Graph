@@ -68,11 +68,13 @@ void humanPrintNodePath(Matrix* graph, NodePath* path){
 }
 
 
-NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
+NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, uint8_t timeOrChange){
 
-	unsigned int actualNode, oldNode, edgeValue;
+	unsigned int actualNode, oldNode;
 	unsigned int tempoLine;
 	//Strand* actualStrand;
+
+	int edgeValue;
 
 	NodePath* pathToReturn;
 
@@ -81,12 +83,23 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
 
 	unsigned int actualCost, newCost, tempoCost;
 
-	actualNode = start;
-	
-	//We're going to save : cost, node, line
+	//We're going to save : cost, node, line id, old Node, old Line id
 	SortedQuintupletList costAndStrand;
 	QuintupletNode* tempoQuintuplet;
 
+	unsigned int changeLineCost;
+	
+	if(timeOrChange){
+		changeLineCost = 1;
+	}
+	else{
+		changeLineCost = CHANGE_LINE;
+	}
+
+	//The actualNode start to start.
+	actualNode = start;
+	
+	//Initialize the Quintuplet list
 	createQuintList(&costAndStrand);
 
 	/*
@@ -137,10 +150,19 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
 
 			edgeValue = graph->data[i + actualNode * graph->width];
 
-			//If the value is 0 it mean there is no edge between actualNode and i.
+			//If the value is 0 it mean all the edge of the actualNode are explored.
 			if(edgeValue == 0){
-				continue;
+				break;
 			}
+
+			//If the value is < 0 ti mean the next edge is at the value converted to positive -1
+			if(edgeValue < 0){
+				i = (-1 * edgeValue) - 1;
+				//We're sure to get a positive value not equal to zero
+				edgeValue = graph->data[i + actualNode * graph->width];
+			}
+
+			
 
 			/*
 				Get the new line id
@@ -150,17 +172,26 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
 			*/
 			newLineId = actualLineId & edgeValue;
 
-			/*
-				Actualize the new cost to the node 'i'
-				If the line changed, add even more to the cost.
-			*/
-			newCost = actualCost + TWO_STATION;
+
+			
+
+
+			
+			if(!timeOrChange){
+				/*
+					Actualize the new cost to the node 'i'
+					If the line changed, add even more to the cost.
+				*/
+				newCost = actualCost + TWO_STATION;
+			}
 
 			//If newLineId = 0 it mean the & operation returned 0 so there is no line in common between the old lines and the new node.
 			if(newLineId == 0){
-				newCost += CHANGE_LINE;
+				newCost += changeLineCost;
 				newLineId = edgeValue;
 			}
+
+
 			
 			/*
 				If the line is done, continue.
@@ -293,21 +324,25 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end){
 
 	}
 
+	free(saved);
 
 	return pathToReturn;
 
 }
 
 
-void addSubwayMatrix(char* str, Matrix* toFill, unsigned int lineId){
+void addSubwayMatrix(char* str, Matrix* toFill){
 
-	int nbNode, from, to, i;
+	int lineId, nbNode, from, to, i;
 
 	const char s[3] = " \n";
 	char *token;
 
 
 	token = strtok(str, s);
+	lineId = atoi(token);
+
+	token = strtok(NULL, s);
 	nbNode = atoi(token);
 
 	if(nbNode < 2){
@@ -330,6 +365,13 @@ void addSubwayMatrix(char* str, Matrix* toFill, unsigned int lineId){
 
 	}
 
+	if(toFill->lineName[lineId]){
+
+		printf("this line id is already done. %d\n", lineId);
+		return;
+
+	}
+
 	token = strtok(NULL, s);
 											//Still not sure for the +1
 	toFill->lineName[lineId] = malloc((strlen(token)+1) * sizeof(char));
@@ -340,7 +382,7 @@ void addSubwayMatrix(char* str, Matrix* toFill, unsigned int lineId){
 
 void fillMatrixGraph(Matrix* toFill, char* filename, SearchingTree* wordTree, uint8_t fillWord){
 
-	int nbVertice, nbEdge, nbSubway, tempo, count;
+	int nbVertice, nbEdge, nbSubway, nbLineOnSubway, tempo, count;
 
 	FILE *fp;
 	char str[MAXCHAR];
@@ -348,7 +390,7 @@ void fillMatrixGraph(Matrix* toFill, char* filename, SearchingTree* wordTree, ui
     fp = fopen(filename, "r");
 
 
-	fscanf(fp, "%d %d %d\n", &nbVertice, &nbEdge, &nbSubway);
+	fscanf(fp, "%d %d %d %d\n", &nbVertice, &nbEdge, &nbSubway, &nbLineOnSubway);
 
 
 	toFill->size = nbVertice*nbVertice;
@@ -387,21 +429,65 @@ void fillMatrixGraph(Matrix* toFill, char* filename, SearchingTree* wordTree, ui
 	}
 
 
-	for(count = 0; count < nbSubway; ++count){
+	for(count = 0; count < nbLineOnSubway; ++count){
 
 		if(!fgets(str, MAXCHAR, fp)){
 			printf("Error, can't read line %d\n", count);
 		}
 
-		addSubwayMatrix(str, toFill, count);
+		addSubwayMatrix(str, toFill);
 
 	}
 
 
 	fclose(fp);
 
+
+	optimizeMatrixGraph(toFill);
+
 }
 
+void optimizeMatrixGraph(Matrix* graph){
+
+	unsigned int width, i, j;
+
+	unsigned int firstZero;
+	uint8_t zeroFound;
+
+	width = graph->width;
+
+	for(i = 0; i < graph->size; i += width){
+		
+		zeroFound = 0;
+
+		for(j = 0; j < width; ++j){
+			
+			if(graph->data[i + j] != 0){
+
+				if(zeroFound == 1){
+
+					graph->data[i + firstZero] = -1 * (j + 1);
+
+					zeroFound = 0;
+			
+				}
+
+
+			}
+			//If it's a zero.
+			else{
+				if(zeroFound == 0){
+					zeroFound = 1;
+					firstZero = j;
+				}
+			}
+
+		}
+
+	}
+
+
+}
 
 void printMatrixGraph(Matrix* toPrint){
 

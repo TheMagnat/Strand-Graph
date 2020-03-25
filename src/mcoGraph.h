@@ -48,7 +48,7 @@ struct Matrix{
 	char **lineName;
 	unsigned int nbLine;
 
-	unsigned int *data;
+	int *data;
 
 	unsigned int size;
 	unsigned int width;
@@ -68,15 +68,23 @@ void humanPrintNodePath(Matrix* graph, NodePath* path);
  * @param start Starting Node.
  * @param end ending Node.
  * 
+ * @param timeOrChange This parameter allow us to select if you prefer the less time or the less line change. On 0 it mean time, on any other it mean line change.
+ *
  * @return A NodePath structure that contain the path from start to end.
  */
-NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end);
+NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, uint8_t timeOrChange);
 
 /**
  * To fill a matrix graph using a file.
  * It also require a SearchingTree to fill all the station name if fillWord is not equal to 0.
 */
 void fillMatrixGraph(Matrix* toFill, char* filename, SearchingTree* wordTree, uint8_t fillWord);
+
+/**
+ * This function optimize the graph to know where the next edge is
+ * and where there is no more edge.
+ */
+void optimizeMatrixGraph(Matrix* graph);
 
 void printMatrixGraph(Matrix* toPrint);
 

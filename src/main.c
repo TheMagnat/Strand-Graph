@@ -14,7 +14,7 @@
 int main(){
 	
 	char buffer[1024];
-	int start, end, tempo;
+	int start, end, tempo, mode;
 
 	clock_t startClock, endClock;
 	double firstTime, secondTime;
@@ -82,7 +82,14 @@ int main(){
 		
 	}
 	printf("\n");
-	
+
+	do{
+		printf("Veuillez choisir une option :\n");
+		printf("0 : Temps le plus court.\n1 : Le moins de correspondances.\n");
+
+		scanf("%d", &mode);
+	}
+	while(mode < 0 || mode > 1);
 
 	printf("Veuillez choisir une option :\n");
 	printf("0 : Recherche sur le Graph à Brins.\n1 : Recherche sur le Graph de Matrices.\n2 : Comparez les deux en temps.\n");
@@ -90,14 +97,14 @@ int main(){
 	scanf("%d", &tempo);
 
 	if(tempo == 0){
-		path = dijkstra(&myGraph, start, end);
+		path = dijkstra(&myGraph, start, end, mode);
 
 		if(path != NULL){
 
 			humanPrintBrandPath(&myGraph, path);
 
 			free(path->brandsIndex);
-			free(path); ///CRASH ICI
+			free(path);
 
 		}
 		else{
@@ -105,7 +112,7 @@ int main(){
 		}
 	}
 	else if(tempo == 1){
-		nodePath = dijkstraMatrix(&myMco, start, end);
+		nodePath = dijkstraMatrix(&myMco, start, end, mode);
 
 		if(nodePath){
 			humanPrintNodePath(&myMco, nodePath);
@@ -122,14 +129,14 @@ int main(){
 	else{
 		
 		startClock = clock();
-		path = dijkstra(&myGraph, start, end);
+		path = dijkstra(&myGraph, start, end, mode);
 		endClock = clock();
 
 		firstTime = ((double) (endClock - startClock)) / CLOCKS_PER_SEC;
 
 
 		startClock = clock();
-		nodePath = dijkstraMatrix(&myMco, start, end);
+		nodePath = dijkstraMatrix(&myMco, start, end, mode);
 		endClock = clock();
 
 		secondTime = ((double) (endClock - startClock)) / CLOCKS_PER_SEC;
