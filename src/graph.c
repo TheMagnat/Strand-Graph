@@ -304,8 +304,6 @@ void addSubway(char* str, Graph* toFill){
 		
 		toFill->strands[toFill->nbStrand].lineId = lineId;
 
-		// printf("%d Strand : vert = %d, first = %d, type = %d\n", toFill->nbStrand, toFill->strands[toFill->nbStrand].vertice, toFill->strands[toFill->nbStrand].nextStrand, toFill->strands[toFill->nbStrand].type);
-
 		/*
 			...and the old first strand of the vertice become the actual strand,
 			it's like a front chained list
@@ -318,8 +316,6 @@ void addSubway(char* str, Graph* toFill){
 		//The vertice is the end of the edge
 		toFill->strands[toFill->nbStrand].vertice = to;
 		//Same comment as above
-
-		//printf("to : %d, first : %d\n", to, toFill->vertices[to].firstStrand);
 		toFill->strands[toFill->nbStrand].nextStrand = toFill->vertices[to].firstStrand;
 		/*
 			The way to access the other strand of the edge.
@@ -332,8 +328,6 @@ void addSubway(char* str, Graph* toFill){
 		//Same comment as above
 		toFill->vertices[to].firstStrand = toFill->nbStrand;
 		
-		// printf("%d Strand : vert = %d, first = %d, type = %d\n", toFill->nbStrand, toFill->strands[toFill->nbStrand].vertice, toFill->strands[toFill->nbStrand].nextStrand, toFill->strands[toFill->nbStrand].type);
-
 		++toFill->nbStrand;
 
 
@@ -343,7 +337,7 @@ void addSubway(char* str, Graph* toFill){
 
 	if(toFill->idToLinesName[lineId]){
 
-		printf("this line id is already done. %d\n", lineId);
+		//printf("this line id is already done. %d\n", lineId);
 		return;
 
 	}
@@ -379,6 +373,10 @@ void fillGraph(Graph* toFill, char* filename, SearchingTree* wordTree, uint8_t f
 
 	toFill->nbLine = nbSubway;
 	toFill->idToLinesName = malloc(nbSubway * sizeof(char*));
+
+	for(count = 0; count < nbSubway; ++count){
+		toFill->idToLinesName[count] = NULL;
+	}
 
 
 	if (fp == NULL){

@@ -367,7 +367,7 @@ void addSubwayMatrix(char* str, Matrix* toFill){
 
 	if(toFill->lineName[lineId]){
 
-		printf("this line id is already done. %d\n", lineId);
+		//printf("this line id is already done 2. %d\n", lineId);
 		return;
 
 	}
@@ -407,6 +407,10 @@ void fillMatrixGraph(Matrix* toFill, char* filename, SearchingTree* wordTree, ui
 
 	toFill->nbLine = nbSubway;
 	toFill->lineName = malloc(nbSubway * sizeof(char*));
+
+	for(count = 0; count < nbSubway; ++count){
+		toFill->lineName[count] = NULL;
+	}
 
 	if (fp == NULL){
 		printf("Could not open file %s",filename);
