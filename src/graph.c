@@ -33,7 +33,7 @@ void humanPrintBrandPath(Graph* graph, BrandPath* path){
 
 	}
 
-	printf("%s\nDestination.\nVeuillez noter no services avec une note entre 18 et 20 sur 20\n", graph->vertices[graph->strands[path->brandsIndex[i-1]].vertice].label);
+	printf("%s\nDestination.\nVeuillez noter nos services avec une note entre 18 et 20 sur 20\n", graph->vertices[graph->strands[path->brandsIndex[i-1]].vertice].label);
 
 }
 
