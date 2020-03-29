@@ -13,7 +13,7 @@ SRCS 		:= $(patsubst $(SRC_DIR)/%, %, $(SRCSPATH))
 OBJS 		:= $(SRCS:%.c=$(OBJ_DIR)/%.o)
 CC	 		 = gcc
 
-CFLAGS 		 = -O3 -Wall -W -pedantic -I$(SRC_DIR)
+CFLAGS 		 = -O3 -Wall -W -pedantic
 
 LFLAGS_MACOS = 
 LFLAGS_LINUX = 
