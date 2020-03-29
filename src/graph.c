@@ -46,20 +46,14 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end, uint8_t 
 	BrandPath* pathToReturn;
 
 	unsigned int actualLineId, i;
+
 	int pairStrandIndex;
 	int tempoValue;
 	int actualStrandIndex, oldWinnerStrandIndex;
-
 	int actualCost, newCost;
-
-	actualNode = &graph->vertices[start];
-
 	
 	SortedTupleList costAndStrand;
 	TupleNode* tempoTuple;
-
-	createList(&costAndStrand);
-
 
 	/*
 		This array represent each strand as it's index.
@@ -69,6 +63,11 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end, uint8_t 
 		< 0, the strand is done and it store the index ( -1 * (index + 1) ) of the strand that led to the strand represented by the index of the array.
 	*/
 	int* visitedStrand;
+
+	actualNode = &graph->vertices[start];
+
+	createList(&costAndStrand);
+
 													//int
 	visitedStrand = malloc(graph->nbStrand * sizeof(*visitedStrand));
 	for(i = 0; i < graph->nbStrand; ++i){
@@ -102,10 +101,10 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end, uint8_t 
 		actualStrandIndex = actualNode->firstStrand;
 
 		///This test is for debugging, it should never hapen if the graph is connected and got more than 1 node
-		if(actualStrandIndex == -1){
-			printf("Node got no first strand.\n");
-			return NULL;
-		}
+		// if(actualStrandIndex == -1){
+		// 	printf("Node got no first strand.\n");
+		// 	return NULL;
+		// }
 
 
 		//We check all the next possible brand
@@ -121,7 +120,9 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end, uint8_t 
 
 			//The strand is not done
 			if(tempoValue >= 0){
-
+				
+				newCost = actualCost;
+				
 				if(timeOrChange){
 
 					if(actualStrand->lineId != actualLineId) newCost += 1;
@@ -129,7 +130,7 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end, uint8_t 
 				}
 				else{
 					
-					newCost = actualCost + TWO_STATION;
+					newCost += TWO_STATION;
 					if(actualStrand->lineId != actualLineId) newCost += CHANGE_LINE;
 
 				}
@@ -174,10 +175,10 @@ BrandPath* dijkstra(Graph* graph, unsigned int start, unsigned int end, uint8_t 
 
 
 		///This test is for debugging, it should never hapen if the graph is connected
-		if(costAndStrand.size == 0){
-			printf("List size = 0.\n");
-			return NULL;
-		}
+		// if(costAndStrand.size == 0){
+		// 	printf("List size = 0.\n");
+		// 	return NULL;
+		// }
 
 		//Now select the first possibility in the sorted list
 		/*

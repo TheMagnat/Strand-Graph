@@ -69,19 +69,22 @@ void humanPrintNodePath(Matrix* graph, NodePath* path){
 
 
 NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, uint8_t timeOrChange){
-
+	
+	unsigned int i, j, tempoValue;
+	
+	unsigned int actualLineId, newLineId, oldLineId, tempoLine;
 	unsigned int actualNode, oldNode;
-	unsigned int tempoLine;
-	//Strand* actualStrand;
+	unsigned int actualCost, newCost, tempoCost;
 
 	int edgeValue;
 
 	NodePath* pathToReturn;
 
-	unsigned int actualLineId, newLineId, oldLineId, i, j;
-	unsigned int tempoValue;
+	/*
+		This will store the current state of each node compared to the line id.
+	*/
+	CostAndDone* saved;
 
-	unsigned int actualCost, newCost, tempoCost;
 
 	//We're going to save : cost, node, line id, old Node, old Line id
 	SortedQuintupletList costAndStrand;
@@ -102,10 +105,6 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 	//Initialize the Quintuplet list
 	createQuintList(&costAndStrand);
 
-	/*
-		This will store the current state of each node compared to the line id.
-	*/
-	CostAndDone* saved;
 										//CostAndDone
 	saved = malloc(graph->width * sizeof(*saved));
 
@@ -175,14 +174,14 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 
 			
 
-
+			newCost = actualCost;
 			
 			if(!timeOrChange){
 				/*
 					Actualize the new cost to the node 'i'
 					If the line changed, add even more to the cost.
 				*/
-				newCost = actualCost + TWO_STATION;
+				newCost += TWO_STATION;
 			}
 
 			//If newLineId = 0 it mean the & operation returned 0 so there is no line in common between the old lines and the new node.
@@ -223,9 +222,9 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 		}
 
 		///This test is for debugging, it should never hapen if the graph is connected
-		if(costAndStrand.size == 0){
-			return NULL;
-		}
+		// if(costAndStrand.size == 0){
+		// 	return NULL;
+		// }
 
 		//Now select the first possibility in the sorted list
 		/*
