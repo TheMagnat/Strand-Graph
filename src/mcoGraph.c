@@ -140,16 +140,16 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 	actualLineId = pow(2, graph->nbLine); 
 
 
-
 	//Note : the break is at the end, we could also put the test here but we skip some assignation
 	while(1){
 
-
+		// printf("start for loop %d\n", actualNode);
 		//We check all the next possible brand
 		for(i = 0; i < graph->width; ++i){
-
+			
+			// printf("in loop %d index : %d\n", i, i + actualNode * graph->width);
 			edgeValue = graph->data[i + actualNode * graph->width];
-
+			// printf("edge value : %d", edgeValue);
 			//If the value is 0 it mean all the edge of the actualNode are explored.
 			if(edgeValue == 0){
 				break;
@@ -200,7 +200,7 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 				and we use costPerLine to store the line that led to the node too.
 				So both vector are important.
 			*/
-			if(saved[i].donePerLine[newLineId] == 1){
+			if(saved[i].donePerLine[newLineId] > 0){
 				continue;
 			}
 			
@@ -214,7 +214,6 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 				continue;
 			}
 
-
 			//If we arrive here, the actual path is the best to arrive to this node (with the current line).
 			saved[i].costPerLine[newLineId] = newCost;
 
@@ -222,7 +221,6 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 			pushSortedQuintList(&costAndStrand, newCost, i, newLineId, actualNode, actualLineId);
 
 		}
-
 
 		///This test is for debugging, it should never hapen if the graph is connected
 		if(costAndStrand.size == 0){
@@ -258,7 +256,6 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 		saved[actualNode].donePerLine[actualLineId] = 1 + oldNode;
 		//Now the node is done, use costPerLine to store the line id which brought here
 		saved[actualNode].costPerLine[actualLineId] = oldLineId;
-		
 		//End if the node is equal to the end node.		
 		if(actualNode == end){
 			break;
@@ -269,7 +266,6 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 	//Free the Quint list.
 	deleteQuintList(&costAndStrand);
 
-
 	oldNode 	= actualNode;
 	oldLineId 	= actualLineId;
 
@@ -278,7 +274,7 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 	*/
 	i = 0;
 	while(actualNode != start){
-		
+
 		tempoLine 		= saved[actualNode].costPerLine[actualLineId];
 		actualNode 		= saved[actualNode].donePerLine[actualLineId]-1;
 		
@@ -287,7 +283,6 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 		++i;
 
 	}
-
 	
 								//NodePath
 	pathToReturn = malloc(sizeof(*pathToReturn));
@@ -323,9 +318,7 @@ NodePath* dijkstraMatrix(Matrix* graph, unsigned int start, unsigned int end, ui
 		--i;
 
 	}
-
 	free(saved);
-
 	return pathToReturn;
 
 }
